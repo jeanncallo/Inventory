@@ -1,0 +1,413 @@
+from dataclasses import dataclass
+
+@dataclass
+class User:
+    id: str
+    name: str
+    username: str
+    password: str
+    position: str
+    
+@dataclass
+class Item:
+    id: str
+    name: str
+    price: float
+    quantity: int
+
+@dataclass
+class Transaction:
+    id: str
+    number: str
+    type: str  # STOCK IN AND STOCK OUT
+    name: str
+    position: str
+    item: Item
+    quantity: int
+    created_at: str
+
+items: list[Item] = [
+    Item('1', 'Bear Brand Powdered Milk 1kg', 200.0, 100),
+    Item('2', ' Milo 1kg', 200.0, 100),
+    Item('3', 'Birch Tree Powdered Milk 1kg', 200.0, 100),
+    Item('4', 'All Purpose Flour 1kg', 200.0, 100),
+    Item('5', 'Bear Brand Choco Powdered Milk 1kg', 200.0, 100)
+]
+
+users: list[User] = [
+    User('1', 'Filemon', 'admin', '111', 'manager'),
+    User('1', 'Je Ann', 'admin', '122', 'asst.manager'),
+    User('1', 'Phoebe', 'admin', '133', 'sales staff'),
+    User('1', 'Alarcon', 'admin', '144', 'sales staff'),
+    User('1', 'Harvey', 'admin', '155', 'sales staff'),
+]
+
+transactions: list[Transaction] = [
+    Transaction('1', '324', 'STOCK IN', 'Filemon', 'manager','Bear Brand Pwdered Milk 1L', 100, '2024-01-28'),
+    Transaction('2','212', 'STOCK IN', 'Je Ann', 'asst.manager','Bear Brand Pwdered Milk 1L', 150, '2024-01-28'),
+    Transaction('3', '123','STOCK IN', 'Phoebe', 'sales staff','Bear Brand Pwdered Milk 1L', 250, '2024-01-28'),
+    Transaction('4', '123123','STOCK IN', 'Alarcon', 'sales staff','Bear Brand Pwdered Milk 1L', 200, '2024-01-28'),
+    Transaction('5', '123123','STOCK IN', 'Harvey', 'sales staff','Bear Brand Pwdered Milk 1L', 120, '2024-01-28')
+]
+
+def login():
+    print("\n==============================")
+    print("=           LOGIN            =")
+    print("==============================")
+    username = input("\nUsername: ")
+    password = input("Password: ")
+    for user in users:
+        if user.username == username and user.password == password:
+            print('\nLogin successful!')
+            main(user)
+        else:
+            print('Invalid username or password. Please try again.')
+            return login()
+
+def main(user_logged_in):
+    print("\n====================================")
+    print("=             MAIN MENU            =")
+    print("====================================")
+    print("\n1. Add Items \n2. Display Items \n3. Update Items \n4. Remove Items \n5. Show Transaction \n6. Create Transaction \n7. Delete Transaction \n \n0. Exit")
+    choice = input("Option: ")
+    while True:
+        if choice == "1":
+            add_item(user_logged_in)
+        elif choice == "2":
+            show_item()
+        elif choice == "3":
+            update_item(user_logged_in)
+        elif choice == "4":
+            remove_item(user_logged_in)
+        elif choice == "5":
+            show_transactions()
+        elif choice == "6":
+            create_transaction(user_logged_in)
+        elif choice == "7":
+            delete_transaction(user_logged_in)
+        elif choice == "0":
+            exit()
+        else:
+            print("Invalid Input! Please Try again.")
+            return main(user_logged_in)
+
+def add_item(user_logged_in):
+    print("\n============================")
+    print("=         ADD ITEMS        =")
+    print("============================")
+    
+    allowed_positions = ['manager', 'asst.manager', 'sales staff']
+    
+    while True:
+        if user_logged_in and user_logged_in.position.lower() in allowed_positions:
+            new_id = input('\nEnter item ID: ')
+            new_name = input('Enter item name: ')
+            new_price = float(input('Enter item price: '))
+            new_quantity = int(input('Enter item quantity: '))
+
+            new_item = Item(id=new_id, name=new_name, price=new_price, quantity=new_quantity)
+
+            print('\nItem details:')
+            print(f'ID: {new_item.id}')
+            print(f'Name: {new_item.name}')
+            print(f'Price: {new_item.price}')
+            print(f'Quantity: {new_item.quantity}')
+
+            confirmation = input('\nConfirm adding this item? (Press [Y] for Yes, [N] for No): ')
+
+            while True:
+                if confirmation.upper() == 'Y':
+                    items.append(new_item)
+                    print('\nItem added successfully!')
+                elif confirmation.upper() == "N":
+                    print('\nItem not added.')
+                    choice = input("Press [1] to add items or [2] to mainmenu: ")
+                    if choice == "1":
+                        add_item(user_logged_in)
+                    else:
+                        main(user_logged_in)
+                else:
+                    print("Invalid Input! Please Try Again.")
+                    return
+
+                print("\nWant to add more items? Press [1] to add more or [2] to main menu.")
+                choice = input("\nOption: ")
+
+                while True:
+                    if choice == "1":
+                        add_item(user_logged_in)
+                    else:
+                        main(user_logged_in)
+        else:
+            print('\nYou do not have the permission to add items.')
+            main(user_logged_in)
+
+def show_item():
+    print("\n============================")
+    print("=      INVENTORY LIST      =")
+    print("============================")
+    
+    while True:
+        if not items:
+            print("No items in inventory.")
+        else:
+            for item in items:
+                print(f"\nID: {item.id}")
+                print(f"Name: {item.name}")
+                print(f"Price: ₱{item.price}")
+                print(f"Quantity: {item.quantity}")
+                print("=====================================")  
+
+        input("Press [ENTER] to return to the main menu: ")
+        return main(user_logged_in)
+
+
+def display_item():
+    while True:
+        if not items:
+            print("No items in inventory.")
+        else:
+            for item in items:
+                print(f"\nID: {item.id}")
+                print(f"Name: {item.name}")
+                print(f"Price: ₱{item.price}")
+                print(f"Quantity: {item.quantity}")
+        break
+
+def update_item(user_logged_in):
+    print("\n============================")
+    print("=       UPDATE ITEMS       =")
+    print("============================")    
+    
+    allowed_positions = ['manager', 'asst.manager', 'sales staff']
+    while True:
+        if user_logged_in and user_logged_in.position.lower() in allowed_positions:
+            display_item()
+            item_id = input('\nEnter the item ID to update: ')
+
+            for item in items:
+                if item.id == item_id:
+                    print('\nCurrent item details:')
+                    print(f'ID: {item.id}')
+                    print(f'Name: {item.name}')
+                    print(f'Price: ₱{item.price}')
+                    print(f'Quantity: {item.quantity}')
+
+                    confirmation = input('\nConfirm updating this item? (Press [Y] for Yes, [N] for No): ')
+
+                    while True:
+                        if confirmation.upper() == 'Y':
+                            new_price = float(input('\nEnter new item price: '))
+
+                            item.price = new_price
+
+                            print('\nItem updated successfully!')
+                            choice = input("\nPress [1] to update more items or [2] to go back to the main menu: ")
+                            if choice == "1":
+                                update_item(user_logged_in)
+                            else:
+                                main(user_logged_in)
+                        elif confirmation.upper() == 'N':
+                            print('\nItem not updated.')
+                            choice = input("Press [1] to update items or [2] to mainmenu: ")
+
+                            if choice == "1":
+                                update_item(user_logged_in)
+                        else:
+                            return main(user_logged_in)
+        
+            print("\nItem not found!")
+            choice = input("\nPress [1] to return in updating item or [2] to return in mainmenu: ")
+            while True:
+                if choice == '1':
+                    update_item(user_logged_in)
+                else:    
+                    return main(user_logged_in)
+        else:
+            print('You do not have the permission to update items.')
+
+def remove_item(user_logged_in):
+    print("\n============================")
+    print("=        REMOVE ITEMS      =")
+    print("============================")
+    
+    display_item()
+    
+    allowed_positions = ['manager', 'asst.manager', 'sales staff']
+    while True:
+        if user_logged_in and user_logged_in.position.lower() in allowed_positions:
+            item_id = input('\nEnter the item ID to remove: ')
+
+            for item in items:
+                if item.id == item_id:
+                    print('\nItem to be removed:')
+                    print(f'ID: {item.id}')
+                    print(f'Name: {item.name}')
+                    print(f'Price: ₱{item.price}')
+                    print(f'Quantity: {item.quantity}')
+
+                    confirmation = input('\nConfirm removing this item? (Press [Y] for Yes, [N] for No): ')
+
+                    while True:
+                        if confirmation.upper() == 'Y':
+                            items.remove(item)
+                            print('\nItem removed successfully!')
+
+                            choice = input("Want to remove more item? Press [1] to remove more items or [2] to mainmenu: ")
+
+                            while True:
+                                if choice == '1':
+                                    remove_item(user_logged_in)
+                                else:
+                                    main(user_logged_in)
+                        else:
+                            print('\nItem not removed.')
+                            choice = input("Press [1] to update items or [2] to mainmenu: ")
+
+                            if choice == "1":
+                                remove_item(user_logged_in)
+                            else:
+                                return main(user_logged_in)
+
+            print('\nItem not found.')
+            choice = input("Press [1] to return in removing item or [2] to return in mainmenu: ")
+            while True:
+                if choice == '1':
+                    create_transaction(user_logged_in)
+                else:    
+                    return main(user_logged_in)
+        else:
+            print('\nYou do not have the permission to remove items.')
+
+def create_transaction(user_logged_in):
+    print("\n===============================")
+    print("=      CREATE TRANSACTION     =")
+    print("===============================")
+    display_item()
+    
+    while True:
+        if user_logged_in:
+            item_id = input('\nEnter the item ID for the transaction: ')
+            for item in items:
+                if item.id == item_id:
+                    number = input('\nEnter transaction #: ')
+                    print(f"Item ID: {item.id}")
+                    print(f"Name: {user_logged_in.name}")
+                    print(f"Item name: {item.name}")
+                    print(f'Position: {user_logged_in.position}')
+                    transaction_type = input('Enter transaction type (STOCK IN or STOCK OUT): ')
+                    quantity = int(input('Enter quantity: '))
+                    created_at = input('Enter creation date (YYYY-MM-DD): ')
+
+                    if transaction_type.upper() == 'STOCK IN':
+                        item.quantity = max(0, quantity)
+                    elif transaction_type.upper() == 'STOCK OUT':
+                        if item.quantity >= quantity:
+                            item.quantity -= quantity
+                        else:
+                            print("\nInsufficient stock for stock out. Transaction canceled.")
+                            return
+                    else:
+                        print("\nInvalid transaction type. Please enter STOCK IN or STOCK OUT.")
+                        return
+
+                    new_transaction = Transaction(id=item_id, number=number, type=transaction_type, item=item.name, quantity=quantity, created_at=created_at, name=user_logged_in.name, position=user_logged_in.position)
+                    transactions.append(new_transaction)
+                    print('\nTransaction created successfully!')
+                    choice = input("Want to create more transaction? Press [1] to create or [2] to mainmenu: ")
+                    while True:
+                        if choice == '1':
+                            create_transaction(user_logged_in)
+                        else:
+                            main(user_logged_in)
+
+            print('\nItem not found.')
+            choice = input("Press [1] to return in creating transaction or [2] to return in mainmenu: ")
+            while True:
+                if choice == '1':
+                    create_transaction(user_logged_in)
+                else:    
+                    return main(user_logged_in)
+        else:
+            print('\nYou need to login before creating a transaction.')
+
+def show_transactions():
+    print("\n=======================")
+    print("=    TRANSACTION      =")
+    print("=======================")
+    while True:
+        for transaction in transactions:
+            print(f"\nTransaction #: {transaction.number}")
+            print(f"Item ID: {transaction.id}")
+            print(f"Name: {transaction.name}")
+            print(f"Position: {user_logged_in.position}")
+            print(f"Item name: {transaction.item}")
+            print(f"Type: {transaction.type}")
+            print(f"Quantity: {transaction.quantity}")
+            print(f"Created At: {transaction.created_at}")
+            print("=====================================")
+        input("Press [ENTER] to return in mainmenu: ")
+        main(user_logged_in)
+
+def display_transactions():
+    while True:
+        for transaction in transactions:
+            print(f"\nTransaction #: {transaction.number}")
+            print(f"Item ID: {transaction.id}")
+            print(f"Name: {transaction.name}")
+            print(f"Item name: {transaction.item}")
+            print(f"Type: {transaction.type}")
+            print(f"Quantity: {transaction.quantity}")
+            print(f"Created At: {transaction.created_at}")
+            print("=====================================")
+
+def delete_transaction(user_logged_in):
+    allowed_positions = ['manager', 'asst.manager']   
+    while True: 
+        if user_logged_in and user_logged_in.position.lower() in allowed_positions:
+            if not transactions:
+                print('\nNo transactions available.')
+                return main(user_logged_in)
+
+            display_transactions()
+            transaction_number = input('Enter the transaction # to delete: ')
+    
+            for transaction in transactions:
+                if transaction.number == transaction_number:
+                    print('\nTransaction to be deleted:')
+                    print(f"Transaction #: {transaction.number}")
+                    print(f'ID: {transaction.id}')
+                    print(f"Name: {transaction.name}")
+                    print(f"Item name: {transaction.item}")
+                    print(f'Type: {transaction.type}')
+                    print(f"Quantity: {transaction.quantity}")
+                    print(f'Date: {transaction.created_at}')
+
+                    confirmation = input('\nConfirm deleting this transaction? (Press [Y] for Yes, [N] for No): ')
+
+                    if confirmation.upper() == 'Y':
+                        transactions.remove(transaction)
+                        print('\nTransaction deleted successfully!')
+                        choice = input("Want to delete more transaction? Press [1] to continue or [2] to return in mainmenu: ")
+
+                        if choice == '1':
+                            delete_transaction(user_logged_in)
+                        else:
+                            return main(user_logged_in)
+
+                    else:
+                        print('\nTransaction not deleted.')
+                        return delete_transaction(user_logged_in)
+
+            print('\nTransaction not found.')
+            input("Press Enter to return in deleting transaction: ")
+            return 
+        else:
+            print('\nYou do not have the permission to delete transactions.')
+            return
+
+#Program Starts here
+if __name__ == '__main__':
+    user_logged_in = login()
+    if user_logged_in:
+        main(user_logged_in)
